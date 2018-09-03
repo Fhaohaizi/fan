@@ -1,0 +1,15 @@
+plugins {
+    id 'groovy'
+}
+
+group 'fan'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+//    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    compile files('/Users/Vicky/Documents/workspace/source_api/build/libs/source_api-1.0-SNAPSHOT.jar')
+}
