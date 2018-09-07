@@ -5,32 +5,28 @@ import com.fission.source.httpclient.FanRequest
 import com.fission.source.mysql.MySqlTest
 import com.fission.source.source.WriteRead
 import com.fission.source.utils.Log
-import net.sf.json.JSONException
+import com.fission.source.utils.Regex
+import com.fission.source.utils.Save
 import net.sf.json.JSONObject
 
 class Weather extends ApiLibrary {
+    static def gap = 150
+    static def name = "city"
+
     static void main(String[] args) {
+
         DEFAULT_CHARSET = GBK;
-        def str = WriteRead.readTextByString(LONG_Path + "c.log")
-        def citys = Arrays.asList(str.split(","))
-        output(citys.size())
-        citys.each { city ->
-//        def city = 60073;
-//            getCityAll(city)
-            try {
-                getCityAll(changeStringToInt(city))
-            } catch (JSONException e) {
-                Log.log("cerror", PART + city)
-            }
-            Log.log("ci", PART + city)
-//            sleep(3000)
-        }
-//        getMonth(city, 2018, 9)
-//        getCityAll(cityId)
-//        for (def i in 2011..2018) {
-//            if (i == 2016) continue
-//            getCityYear(city,2018)
+        def str = WriteRead.readTextByString(LONG_Path + name + ".log")
+        def all = Regex.regexAll(str, "\\d{5}")
+        Set<String> set = new HashSet<>(all)
+        Save.saveStringList(set,"citycode.log")
+//        citys.each { city ->
+////            getCityAll(city)
+//            getCityAll(changeStringToInt(city))
 //        }
+//                def city = 71321;
+//        getMonth(city, 2018, 9)
+//        getCityAll(city)
         testOver();
     }
 
@@ -41,7 +37,6 @@ class Weather extends ApiLibrary {
     static getCityAll(int cityId) {
         for (int j in 2011..2018) {
             getCityYear(cityId, j)
-            sleep(1000 + getRandomInt(1000))
         }
     }
 
@@ -53,8 +48,13 @@ class Weather extends ApiLibrary {
     static getCityYear(int cityId, int year) {
         for (int i in 1..12) {
             if (year == 2018 && i > 9) continue
-            getMonth(cityId, year, i)
-            sleep(1000 + getRandomInt(1000))
+            try {
+                getMonth(cityId, year, i)
+                Log.log(name + "s", PART + cityId + PART + year + PART + i)
+            } catch (Exception e) {
+                Log.log(name + "error", PART + cityId + PART + year + PART + i)
+            }
+            sleep(gap + getRandomInt(gap))
         }
     }
 
@@ -102,7 +102,7 @@ class Weather extends ApiLibrary {
             }
             String sql = "INSERT INTO weather (city,low,high,date,wind,windsize,weather,aqi,aqilevel,aqiinfo) VALUES (\"%s\",%d,%d,\"%s\",\"%s\",\"%s\",\"%s\",%d,%d,\"%s\");"
             sql = String.format(sql, city, changeStringToInt(low), changeStringToInt(high), date, wind, fengli, wea, aqi, aqiLevel, aqiInfo)
-            output(sql)
+//            output(sql)
             MySqlTest.sendWork(sql)
         }
     }
